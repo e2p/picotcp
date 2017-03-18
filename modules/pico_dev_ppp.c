@@ -1141,12 +1141,12 @@ static inline uint32_t ipcp_request_options_size(struct pico_device_ppp *ppp)
 {
     uint32_t size = 0;
 
-/*    if (ppp->ipcp_ip) */
-    size += IPCP_ADDR_LEN;
-/*    if (ppp->ipcp_dns1) */
-    size += IPCP_ADDR_LEN;
-/*    if (ppp->ipcp_dns2) */
-    size += IPCP_ADDR_LEN;
+    if (ppp->ipcp_ip)
+      size += IPCP_ADDR_LEN;
+    if (ppp->ipcp_dns1)
+      size += IPCP_ADDR_LEN;
+    if (ppp->ipcp_dns2)
+      size += IPCP_ADDR_LEN;
     if (ppp->ipcp_nbns1)
         size += IPCP_ADDR_LEN;
 
@@ -1467,7 +1467,8 @@ static void lcp_this_layer_down(struct pico_device_ppp *ppp)
 static void lcp_this_layer_started(struct pico_device_ppp *ppp)
 {
     ppp_dbg("PPP: LCP started.\n");
-    evaluate_modem_state(ppp, PPP_MODEM_EVENT_START);
+    // evaluate_modem_state(ppp, PPP_MODEM_EVENT_START);
+    evaluate_modem_state(ppp, PPP_MODEM_EVENT_CONNECT); // FIXME parametrize
 }
 
 static void lcp_this_layer_finished(struct pico_device_ppp *ppp)
@@ -2195,7 +2196,10 @@ struct pico_device *pico_ppp_create(void)
     ppp->dev.link_state  = pico_ppp_link_state;
     ppp->frame_id = (uint8_t)(pico_rand() % 0xFF);
 
-    ppp->modem_state = PPP_MODEM_STATE_INITIAL;
+    // ppp->modem_state = PPP_MODEM_STATE_INITIAL;
+    ppp->modem_state = PPP_MODEM_STATE_DIAL; // FIXME parametrize
+    pico_string_to_ipv4("1.2.3.4", &ppp->ipcp_ip);
+
     ppp->lcp_state = PPP_LCP_STATE_INITIAL;
     ppp->auth_state = PPP_AUTH_STATE_INITIAL;
     ppp->ipcp_state = PPP_IPCP_STATE_INITIAL;
